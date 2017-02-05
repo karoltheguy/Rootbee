@@ -1,0 +1,8 @@
+﻿<Application
+    x:Class="RootBee.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RootBee"
+    RequestedTheme="Light">
+
+</Application>
