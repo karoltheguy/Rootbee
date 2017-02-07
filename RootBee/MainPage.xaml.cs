@@ -24,36 +24,14 @@ namespace RootBee
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        static HttpClient client = new HttpClient();
-        string APP_KEY = "";
-        string SCOPE = "smartWrite";
+
 
         public MainPage()
         {
             this.InitializeComponent();
-            GetPinAsync();
+            new AppAuthorization().GetPinAsync().GetAwaiter();
         }
 
-        private async Task GetPinAsync()
-        {
-            client.BaseAddress = new Uri("https://api.ecobee.com/");
-            //authorize?response_type=ecobeePin&client_id=APP_KEY&scope=SCOPE
-            //client.DefaultRequestHeaders.Accept.Clear();
-            //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            string something = await GetProductAsync(string.Format("authorize?response_type=ecobeePin&client_id={0}&scope={1}", APP_KEY, SCOPE));
-            Debug.WriteLine(something);
-        }
-
-        async Task<string> GetProductAsync(string path)
-        {
-            String stringResponse = string.Empty;
-            HttpResponseMessage response = await client.GetAsync(path);
-            if (response.IsSuccessStatusCode)
-            {
-                stringResponse = await response.Content.ReadAsStringAsync();
-            }
-            return stringResponse;
-        }
     }
 }
