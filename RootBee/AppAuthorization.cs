@@ -21,7 +21,7 @@ namespace RootBee
 
             string json = await GetPinSite(string.Format("authorize?response_type=ecobeePin&client_id={0}&scope={1}", APP_KEY, SCOPE));
 
-            EcobeeAuthModel pin = JsonConvert.DeserializeObject<EcobeeAuthModel>(json);
+            EcobeeAPIPin pin = JsonConvert.DeserializeObject<EcobeeAPIPin>(json);
             Debug.WriteLine(json);
         }
 

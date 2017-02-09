@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RootBee
 {
-    class EcobeeAuthModel
+    class EcobeeAPIPin
     {
         //{
         //    "ecobeePin": "p73j",
