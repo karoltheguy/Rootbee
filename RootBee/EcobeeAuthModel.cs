@@ -22,4 +22,22 @@ namespace RootBee
         public string expires_in { get; set; }
         public string interval { get; set; }
     }
+
+    class EcobeeTokenRefresh
+    {
+        //{
+        //    "access_token": "Rc7JE8P7XUgSCPogLOx2VLMfITqQQrjg",
+        //    "token_type": "Bearer",
+        //    "expires_in": 3599,
+        //    "refresh_token": "og2Obost3ucRo1ofo0EDoslGltmFMe2g",
+        //    "scope": "smartWrite" 
+        //}
+        public string access_token { get; set; }
+        public string token_type { get; set; }
+        public string expires_in { get; set; }
+        public string refresh_token { get; set; }
+        public string scope { get; set; }
+    }
+
+
 }
