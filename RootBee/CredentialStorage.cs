@@ -9,22 +9,33 @@ namespace RootBee
 {
     class CredentialStorage
     {
-        private PasswordCredential GetCredentialFromLocker(string resourceName)
+        internal string[] GetCredentialFromLocker(string resourceName)
         {
             PasswordCredential credential = null;
 
             var vault = new PasswordVault();
-            var credentialList = vault.FindAllByResource(resourceName);
-            if (credentialList.Count > 0)
+            try
             {
+                var credentialList = vault.FindAllByResource(resourceName);
                 credential = credentialList[0];
+                credential.RetrievePassword();
+                return new string[] { credential.UserName, credential.Password };
             }
-            else
+            catch (Exception)
             {
-                return new PasswordCredential(resourceName, "", "");
+                return new string[] { "", "" };
             }
+            
+            //if (credentialList.Count > 0)
+            //{
+                
+            //}
+            //else
+            //{
+                
+            //}
 
-            return credential;
+            
         }
 
         public void DeleteCredentialFromLocker(string resourceName, string username, string password)

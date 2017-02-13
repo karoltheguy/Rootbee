@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Security.Credentials;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -32,6 +35,22 @@ namespace RootBee
             this.Suspending += OnSuspending;
         }
 
+        private void App_BackRequested(object sender, Windows.UI.Core.BackRequestedEventArgs e)
+        {
+            Frame rootFrame = Window.Current.Content as Frame;
+            if (rootFrame == null)
+                return;
+
+            // Navigate back if possible, and if the event has not 
+            // already been handled .
+            if (rootFrame.CanGoBack && e.Handled == false)
+            {
+                e.Handled = true;
+                rootFrame.GoBack();
+            }
+        }
+
+
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
         /// will be used such as when the application is launched to open a specific file.
@@ -49,6 +68,7 @@ namespace RootBee
                 rootFrame = new Frame();
 
                 rootFrame.NavigationFailed += OnNavigationFailed;
+                rootFrame.Navigated += OnNavigated;
 
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
@@ -57,20 +77,67 @@ namespace RootBee
 
                 // Place the frame in the current Window
                 Window.Current.Content = rootFrame;
+
+                SystemNavigationManager.GetForCurrentView().BackRequested += App_BackRequested;
+
+                SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility =
+                rootFrame.CanGoBack ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed;
             }
 
             if (e.PrelaunchActivated == false)
             {
                 if (rootFrame.Content == null)
                 {
-                    // When the navigation stack isn't restored navigate to the first page,
-                    // configuring the new page by passing required information as a navigation
-                    // parameter
-                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                    if (IsActivated().Result)
+                    {
+                        rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                    }
+                    else
+                    {
+                        // When the navigation stack isn't restored navigate to the first page,
+                        // configuring the new page by passing required information as a navigation
+                        // parameter
+                        rootFrame.Navigate(typeof(AuthorizationPage), e.Arguments);
+                    }
+                    
                 }
                 // Ensure the current window is active
                 Window.Current.Activate();
             }
+        }
+
+        private async System.Threading.Tasks.Task<bool> IsActivated()
+        {
+            string assemblyName = typeof(App).GetTypeInfo().Assembly.FullName;
+            CredentialStorage credentialStorage = new CredentialStorage();
+            string[] passArray = credentialStorage.GetCredentialFromLocker(assemblyName);
+            
+            if (string.IsNullOrEmpty(passArray[0]))
+            {
+                return false;
+            }
+            else
+            {
+                EcobeeTokenRefresh token = await new AppAuthorization().GetNewTokenAsync();
+                if (string.IsNullOrEmpty(token.access_token))
+                {
+                    return false;
+                }
+                else
+                {
+                    credentialStorage.DeleteCredentialFromLocker(assemblyName, passArray[0], passArray[1]);
+                    credentialStorage.CreateCredentialInLocker(assemblyName, token.access_token, token.refresh_token);
+                    return true;
+                }
+                
+            }
+        }
+
+        private void OnNavigated(object sender, NavigationEventArgs e)
+        {
+            // Each time a navigation event occurs, update the Back button's visibility
+            SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility =
+                ((Frame)sender).CanGoBack ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed;
         }
 
         /// <summary>

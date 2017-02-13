@@ -1,0 +1,30 @@
+﻿<Page
+    x:Class="RootBee.AuthorizationPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RootBee"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" VerticalAlignment="Bottom" TextWrapping="Wrap" Width="340">
+            <Run Text="To pair the app with your Ecobee, you must get a PIN which you must enter on your account page in 'My Apps'. "/>
+            <Run Text="&#x0a;"/>
+            <Run Text="&#x0a;"/>
+            <Run Text="You will have 9 minutes to use the PIN."/>
+        </TextBlock>
+        <TextBox x:Name="PinTextBox" Grid.Row="1" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Height="87" Width="154" FontSize="55" BorderThickness="0"/>
+        <Button x:Name="PinButton" Grid.Row="2" Content="Get PIN" HorizontalAlignment="Center" VerticalAlignment="Top" Click="PinButton_Click"/>
+        <Button x:Name="ContinueButton" Visibility="Collapsed" Grid.Row="2" Content="Continue" HorizontalAlignment="Center" VerticalAlignment="Top" Click="PinButton_Click"/>
+        <TextBlock x:Name="ErrorTextBox" Grid.Row="2" VerticalAlignment="Bottom" FontSize="20" Foreground="#FFD63939" />
+    </Grid>
+</Page>
