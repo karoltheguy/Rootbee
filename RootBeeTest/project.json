@@ -1,6 +1,6 @@
 ﻿{
   "dependencies": {
-    "Etg.SimpleStubs": "2.3.1",
+    "HyperMock.Universal": "2.0.4",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2",
     "MSTest.TestAdapter": "1.1.8-rc2",
     "MSTest.TestFramework": "1.0.8-rc2"

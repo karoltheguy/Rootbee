@@ -14,9 +14,6 @@ namespace RootBee
         //    "scope": "smartWrite",
         //    "expires_in": 9,
         //    "interval": 30
-        //    "error": "invalid_grant",
-        //    "error_description": "The authorization grant, token or credentials are invalid, expired, revoked, do not match the redirection URI used in the authorization request, or was issued to another client.",
-        //    "error_uri": "https://tools.ietf.org/html/rfc6749#section-5.2"
         //}
         
         /// <summary>
@@ -27,9 +24,6 @@ namespace RootBee
         public string scope { get; set; }
         public string expires_in { get; set; }
         public string interval { get; set; }
-        public string error { get; set; }
-        public string error_description { get; set; }
-        public string error_uri { get; set; }
     }
 
     public class EcobeeTokenRefresh
@@ -40,9 +34,6 @@ namespace RootBee
         //    "expires_in": 3599,
         //    "refresh_token": "og2Obost3ucRo1ofo0EDoslGltmFMe2g",
         //    "scope": "smartWrite" 
-        //    "error": "authorization_pending",
-        //    "error_description": "Waiting for user to authorize application.",
-        //    "error_uri": "https://tools.ietf.org/html/rfc6749#section-5.2"
         //}
 
 
@@ -52,6 +43,21 @@ namespace RootBee
         public string expires_in { get; set; }
         public string refresh_token { get; set; }
         public string scope { get; set; }
+
+    }
+
+    public class EcobeeError
+    {
+        //{
+        //    "error": "authorization_pending",
+        //    "error_description": "Waiting for user to authorize application.",
+        //    "error_uri": "https://tools.ietf.org/html/rfc6749#section-5.2"
+        //}
+
+        //    "error": "invalid_grant",
+        //    "error_description": "The authorization grant, token or credentials are invalid, expired, revoked, do not match the redirection URI used in the authorization request, or was issued to another client.",
+        //    "error_uri": "https://tools.ietf.org/html/rfc6749#section-5.2"
+
         public string error { get; set; }
         public string error_description { get; set; }
         public string error_uri { get; set; }

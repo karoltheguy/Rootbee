@@ -34,37 +34,46 @@ namespace RootBee
             pinTimer.Interval = new TimeSpan(0,9,0);
             pinTimer.Tick += PinTimer_Tick;
 
-            authTimer.Interval = new TimeSpan(0, 0, 3);
+            authTimer.Interval = new TimeSpan(0, 0, 31);
             authTimer.Tick += AuthTimer_Tick;
         }
 
         private async void PinButton_Click(object sender, RoutedEventArgs e)
         {
-            pin = await auth.GetPinAsync();
-
-            if (!string.IsNullOrEmpty(pin.ecobeePin))
+            try
             {
+                pin = await auth.GetPinAsync();
                 PinTextBox.Text = pin.ecobeePin;
+                RemainingTimeTextBlock.Visibility = Visibility.Visible;
+                RemainingTimeTextBlock.Text = string.Format("You have {0} minutes to use the PIN.", pin.expires_in);
                 pinTimer.Start();
                 authTimer.Start();
             }
-            else
+            catch (ApiException ex)
             {
-                ErrorTextBox.Text = pin.error_description;
+                ErrorTextBox.Text = ex.ErrorMessage.error_description;
             }
+            
+            
         }
 
         private async void AuthTimer_Tick(object sender, object e)
         {
             authTimer.Stop();
-            token = await auth.GetNewTokenAsync();
 
-            if (!string.IsNullOrEmpty(token.access_token))
+            try
             {
+                token = await auth.GetVeryFirstTokenAsync(pin.code);
                 new CredentialStorage().CreateCredentialInLocker(typeof(App).GetTypeInfo().Assembly.FullName, token.access_token, token.refresh_token);
                 this.Frame.Navigate(typeof(MainPage));
             }
-            else authTimer.Start();
+            catch (ApiException ex)
+            {
+                ErrorTextBox.Text = ex.ErrorMessage.error_description;
+
+                if (ex.ErrorMessage.error.Contains("authorization_pending"))
+                    authTimer.Start();
+            }
         }
 
         private void PinTimer_Tick(object sender, object e)

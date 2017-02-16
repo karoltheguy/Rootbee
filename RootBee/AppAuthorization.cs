@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Reflection;
 using Windows.Security.Credentials;
+using System.Net.Http.Headers;
 
 namespace RootBee
 {
@@ -39,14 +40,42 @@ namespace RootBee
             return stringResponse;
         }
 
+        async Task<string> PostAPIFromSite(string uri, string code)
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", code);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
+
+            var formContent = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("grant_type", "ecobeePin"),
+                new KeyValuePair<string, string>("code", code),
+                new KeyValuePair<string, string>("client_id", APP_KEY)
+            });
+            HttpContent body = new StringContent("token?grant_type=ecobeePin&code=s1P1AlXcMxqW0I74jhPALlUl24Q1K0rl&client_id=6DUypFBjrvA5HshRS96Q6anmkbvPZRog");
+            body.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            var response = await client.PostAsync(uri, body);
+            return await response.Content.ReadAsStringAsync();
+        }
+
         public async Task<EcobeeTokenRefresh> GetNewTokenAsync()
         {
             var assemblyName = typeof(App).GetTypeInfo().Assembly.FullName;
             string[] passArray = new CredentialStorage().GetCredentialFromLocker(assemblyName);
 
             string json = await GetAPIFromSite(string.Format("token?grant_type=refresh_token&refresh_token={0}&client_id={1}", passArray[1], APP_KEY));
-            EcobeeTokenRefresh token = JsonConvert.DeserializeObject<EcobeeTokenRefresh>(json);
+            EcobeeTokenRefresh token = JsonConvert.DeserializeObject<EcobeeTokenRefresh>(json)?? new EcobeeTokenRefresh();
             return token;
+        }
+
+        public async Task<EcobeeTokenRefresh> GetVeryFirstTokenAsync(string code)
+        {
+            var response = await client.PostAsync(string.Format("token?grant_type=ecobeePin&code={0}&client_id={1}", code, APP_KEY), null);
+            string json = await response.Content.ReadAsStringAsync();
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                return JsonConvert.DeserializeObject<EcobeeTokenRefresh>(json);
+            
+            else throw new ApiException(JsonConvert.DeserializeObject<EcobeeError>(json));
         }
     }
 }

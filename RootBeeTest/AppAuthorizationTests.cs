@@ -1,43 +1,64 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Etg.SimpleStubs;
+using HyperMock;
 using RootBee;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using System;
 
 namespace RootBeeTest
 {
-    [TestClass]
+    [TestClass()]
     public class AppAuthorizationTests
     {
-        //private MockRepository mockRepository;
-
-
-
         [TestInitialize]
-        public void TestInitialize()
+        public void BeforeEachTest()
         {
-         //   this.mockRepository = new MockRepository(MockBehavior.Strict);
-         
-
+            //_mockService = Mock.Create<IAccountService>();
+            //_controller = new AccountController(_mockService.Object);
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        [TestMethod()]
+        public async Task GetVeryFirstTokenAsyncTest()
         {
-           // this.mockRepository.VerifyAll();
+            string APP_KEY = "6DUypFBjrvA5HshRS96Q6anmkbvPZRog";
+            string code = GetPin();
+            if (code != string.Empty)
+            {
+                Stopwatch sw = new Stopwatch();
+
+                for (int i = 0; i < 60; i++)
+                {
+                    try
+                    {
+                        sw.Start();
+                        EcobeeTokenRefresh token = new AppAuthorization().GetVeryFirstTokenAsync(code).Result;
+                    }
+                    catch (System.Exception ex  )
+                    {
+                        Debug.WriteLine(ex.InnerException.Message);
+                        Debug.WriteLine(sw.Elapsed.TotalSeconds);
+                        await Task.Delay(TimeSpan.FromSeconds(1));
+                    }
+                    
+                }
+                
+
+                //Assert.IsNotNull(token.access_token);
+            }
+            
+            
         }
 
-        [TestMethod]
-        public void TestMethod1()
+        private string GetPin()
         {
-
-
-            AppAuthorization appAuthorization = this.CreateAppAuthorization();
-
-
+            AppAuthorization auth = new AppAuthorization();
+            EcobeeAPIPin pin = auth.GetPinAsync().Result;
+            if (pin.code != null)
+            {
+                return pin.code;
+            }
+            return string.Empty;
         }
 
-        private AppAuthorization CreateAppAuthorization()
-        {
-            return new AppAuthorization();
-        }
     }
 }
