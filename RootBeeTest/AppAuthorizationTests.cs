@@ -1,52 +1,34 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using HyperMock;
 using RootBee;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System;
+using Xunit;
 
 namespace RootBeeTest
 {
-    [TestClass()]
     public class AppAuthorizationTests
     {
-        [TestInitialize]
-        public void BeforeEachTest()
-        {
-            //_mockService = Mock.Create<IAccountService>();
-            //_controller = new AccountController(_mockService.Object);
-        }
 
-        [TestMethod()]
-        public async Task GetVeryFirstTokenAsyncTest()
+        public void GetVeryFirstTokenAsyncTest()
         {
-            string APP_KEY = "6DUypFBjrvA5HshRS96Q6anmkbvPZRog";
             string code = GetPin();
             if (code != string.Empty)
             {
-                Stopwatch sw = new Stopwatch();
 
-                for (int i = 0; i < 60; i++)
+                try
                 {
-                    try
-                    {
-                        sw.Start();
-                        EcobeeTokenRefresh token = new AppAuthorization().GetVeryFirstTokenAsync(code).Result;
-                    }
-                    catch (System.Exception ex  )
-                    {
-                        Debug.WriteLine(ex.InnerException.Message);
-                        Debug.WriteLine(sw.Elapsed.TotalSeconds);
-                        await Task.Delay(TimeSpan.FromSeconds(1));
-                    }
-                    
+                    token = new AppAuthorization().GetVeryFirstTokenAsync(code).Result;
                 }
-                
+                catch (System.Exception ex)
+                {
+                    Debug.WriteLine(ex.InnerException.Message);
+                }
 
-                //Assert.IsNotNull(token.access_token);
+                Assert.NotNull(token.access_token);
             }
-            
-            
+
+
         }
 
         private string GetPin()
@@ -60,5 +42,45 @@ namespace RootBeeTest
             return string.Empty;
         }
 
+        static EcobeeTokenRefresh token;
+
+        [Fact]
+        public void GetNewTokenAsyncTest()
+        {
+            string assemblyName = "RootBee";
+            CredentialStorage credentialStorage = new CredentialStorage();
+            string[] passArray = credentialStorage.GetCredentialFromLocker(assemblyName);
+
+            AppAuthorization appAuth = new AppAuthorization();
+            EcobeeTokenRefresh token = appAuth.GetTokenRefreshAsync(passArray[1]).Result;
+
+
+            credentialStorage.DeleteCredentialFromLocker(assemblyName, passArray[0], passArray[1]);
+            credentialStorage.CreateCredentialInLocker(assemblyName, token.access_token, token.refresh_token);
+        }
+
+        [Fact]
+        public void WholePinTokenRefreshTest()
+        {
+            DeleteCred();
+
+            string code = GetPin();
+            token = new AppAuthorization().GetVeryFirstTokenAsync(code).Result;
+
+            AppAuthorization appauth = new AppAuthorization();
+            token = appauth.GetTokenRefreshAsync(token.refresh_token).GetAwaiter().GetResult();
+            new CredentialStorage().CreateCredentialInLocker("RootBee", token.access_token, token.refresh_token);
+        }
+
+        private void DeleteCred()
+        {
+            string assemblyName = "RootBee";
+            CredentialStorage credentialStorage = new CredentialStorage();
+            string[] passArray = credentialStorage.GetCredentialFromLocker(assemblyName);
+            if (passArray[0] != string.Empty)
+            {
+                credentialStorage.DeleteCredentialFromLocker(assemblyName, passArray[0], passArray[1]);
+            }
+        }
     }
 }

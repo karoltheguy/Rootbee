@@ -7,9 +7,9 @@ using Windows.Security.Credentials;
 
 namespace RootBee
 {
-    class CredentialStorage
+    public class CredentialStorage
     {
-        internal string[] GetCredentialFromLocker(string resourceName)
+        public string[] GetCredentialFromLocker(string resourceName)
         {
             PasswordCredential credential = null;
 

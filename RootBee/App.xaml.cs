@@ -88,7 +88,7 @@ namespace RootBee
             {
                 if (rootFrame.Content == null)
                 {
-                    if (IsActivated().Result)
+                    if (IsActivated())
                     {
                         rootFrame.Navigate(typeof(MainPage), e.Arguments);
                     }
@@ -106,7 +106,7 @@ namespace RootBee
             }
         }
 
-        private async System.Threading.Tasks.Task<bool> IsActivated()
+        private bool IsActivated()
         {
             string assemblyName = typeof(App).GetTypeInfo().Assembly.FullName;
             CredentialStorage credentialStorage = new CredentialStorage();
@@ -118,16 +118,23 @@ namespace RootBee
             }
             else
             {
-                EcobeeTokenRefresh token = await new AppAuthorization().GetNewTokenAsync();
-                if (string.IsNullOrEmpty(token.access_token))
+                try
+                {
+                    EcobeeTokenRefresh token = new AppAuthorization().GetTokenRefreshAsync(passArray[1]).GetAwaiter().GetResult();
+                    if (string.IsNullOrEmpty(token.access_token))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        credentialStorage.DeleteCredentialFromLocker(assemblyName, passArray[0], passArray[1]);
+                        credentialStorage.CreateCredentialInLocker(assemblyName, token.access_token, token.refresh_token);
+                        return true;
+                    }
+                }
+                catch (ApiException)
                 {
                     return false;
-                }
-                else
-                {
-                    credentialStorage.DeleteCredentialFromLocker(assemblyName, passArray[0], passArray[1]);
-                    credentialStorage.CreateCredentialInLocker(assemblyName, token.access_token, token.refresh_token);
-                    return true;
                 }
                 
             }
