@@ -82,5 +82,21 @@ namespace RootBeeTest
                 credentialStorage.DeleteCredentialFromLocker(assemblyName, passArray[0], passArray[1]);
             }
         }
+
+        [Fact]
+        public void GetTemperature()
+        {
+            string json = "{\"selection\":{\"selectionType\":\"registered\",\"selectionMatch\":\"\",\"includeRuntime\":true}}";
+
+            string assemblyName = "RootBee";
+            CredentialStorage credentialStorage = new CredentialStorage();
+            string[] passArray = credentialStorage.GetCredentialFromLocker(assemblyName);
+            string authCode = passArray[0];
+
+            AppAuthorization appauth = new AppAuthorization();
+            string response = appauth.PostAPIFromSite(@"https://api.ecobee.com/1/thermostat", "00B1zLoqbkczRFHKfuWdEtB27CVjLToL", json).GetAwaiter().GetResult();
+            Debug.WriteLine(response);
+
+        }
     }
 }

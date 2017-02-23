@@ -40,23 +40,17 @@ namespace RootBee
             return stringResponse;
         }
 
-        //async Task<string> PostAPIFromSite(string uri, string code)
-        //{
-        //    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", code);
-        //    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
+        public async Task<string> PostAPIFromSite(string uri, string code, string json)
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", code);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
 
-        //    var formContent = new FormUrlEncodedContent(new[]
-        //    {
-        //        new KeyValuePair<string, string>("grant_type", "ecobeePin"),
-        //        new KeyValuePair<string, string>("code", code),
-        //        new KeyValuePair<string, string>("client_id", APP_KEY)
-        //    });
-        //    HttpContent body = new StringContent("token?grant_type=ecobeePin&code=s1P1AlXcMxqW0I74jhPALlUl24Q1K0rl&client_id=6DUypFBjrvA5HshRS96Q6anmkbvPZRog");
-        //    body.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            HttpContent body = new StringContent(json);
+            body.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-        //    var response = await client.PostAsync(uri, body);
-        //    return await response.Content.ReadAsStringAsync();
-        //}
+            var response = await client.PostAsync(uri, body);
+            return await response.Content.ReadAsStringAsync();
+        }
 
         //public async Task<EcobeeTokenRefresh> GetNewTokenAsync()
         //{
