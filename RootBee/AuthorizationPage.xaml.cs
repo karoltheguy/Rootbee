@@ -13,6 +13,9 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using EcobeeLibUWP;
+using EcobeeLibUWP.Messages;
+using Windows.ApplicationModel.Resources;
 
 namespace RootBee
 {
@@ -21,15 +24,23 @@ namespace RootBee
     /// </summary>
     public sealed partial class AuthorizationPage : Page
     {
-        EcobeeAPIPin pin = new EcobeeAPIPin();
-        EcobeeTokenRefresh token = new EcobeeTokenRefresh();
-        AppAuthorization auth = new AppAuthorization();
+        //EcobeeAPIPin pin = new EcobeeAPIPin();
+        Pin pin = new Pin();
+        AuthToken token = new AuthToken();
+
+        //EcobeeTokenRefresh token = new EcobeeTokenRefresh();
+        //AppAuthorization auth = new AppAuthorization();
+
+        ResourceLoader resources = new Windows.ApplicationModel.Resources.ResourceLoader();
+        string AppKey = string.Empty;
+
         DispatcherTimer pinTimer = new DispatcherTimer();
         DispatcherTimer authTimer = new DispatcherTimer();
 
         public AuthorizationPage()
         {
             this.InitializeComponent();
+            AppKey = resources.GetString("AppKey");
 
             pinTimer.Interval = new TimeSpan(0,9,0);
             pinTimer.Tick += PinTimer_Tick;
@@ -42,10 +53,11 @@ namespace RootBee
         {
             try
             {
-                pin = await auth.GetPinAsync();
-                PinTextBox.Text = pin.ecobeePin;
+                pin = await Client.GetPin(AppKey);
+                //pin = await auth.GetPinAsync();
+                PinTextBox.Text = pin.EcobeePin;
                 RemainingTimeTextBlock.Visibility = Visibility.Visible;
-                RemainingTimeTextBlock.Text = string.Format("You have {0} minutes to use the PIN.", pin.expires_in);
+                RemainingTimeTextBlock.Text = string.Format("You have {0} minutes to use the PIN.", pin.ExpiresIn);
                 pinTimer.Start();
                 authTimer.Start();
             }
@@ -63,8 +75,9 @@ namespace RootBee
 
             try
             {
-                token = await auth.GetVeryFirstTokenAsync(pin.code);
-                new CredentialStorage().CreateCredentialInLocker(typeof(App).GetTypeInfo().Assembly.FullName, token.access_token, token.refresh_token);
+                token = await Client.GetAccessToken(AppKey, pin.Code);
+                //token = await auth.GetVeryFirstTokenAsync(pin.Code);
+                CredentialStorage.CreateCredentialInLocker(typeof(App).GetTypeInfo().Assembly.FullName, token.AccessToken, token.RefreshToken);
                 this.Frame.Navigate(typeof(MainPage));
             }
             catch (ApiException ex)

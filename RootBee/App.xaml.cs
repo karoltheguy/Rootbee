@@ -17,6 +17,10 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using EcobeeLibUWP.Messages;
+using EcobeeLibUWP;
+using System.Threading.Tasks;
+using EcobeeLibUWP.Protocol.Thermostat;
 
 namespace RootBee
 {
@@ -25,6 +29,28 @@ namespace RootBee
     /// </summary>
     sealed partial class App : Application
     {
+        Client client;
+        string assemblyName = typeof(App).GetTypeInfo().Assembly.FullName;
+
+        DateTime TokenExpiry
+        {
+            get
+            {
+                try
+                {
+                    return (DateTime)Windows.Storage.ApplicationData.Current.LocalSettings.Values["TokenExpiry"];
+                }
+                catch (Exception)
+                {
+                    return DateTime.Now;
+                }
+
+            }
+
+            set => Windows.Storage.ApplicationData.Current.LocalSettings.Values["TokenExpiry"] = value;
+        }
+
+
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -105,13 +131,16 @@ namespace RootBee
                 Window.Current.Activate();
             }
         }
-
+//TOCHANGE
         private bool IsActivated()
         {
-            string assemblyName = typeof(App).GetTypeInfo().Assembly.FullName;
-            CredentialStorage credentialStorage = new CredentialStorage();
-            string[] passArray = credentialStorage.GetCredentialFromLocker(assemblyName);
-            
+            string[] passArray = CredentialStorage.GetCredentialFromLocker(assemblyName);
+
+            string AppKey = new Windows.ApplicationModel.Resources.ResourceLoader().GetString("AppKey");
+            //DateTime TokenExpiry = DateTime.Parse(new Windows.ApplicationModel.Resources.ResourceLoader().GetString("TokenExpiry"));
+            client = new Client(AppKey, passArray[0], passArray[1], TokenExpiry);
+            client.AuthTokenUpdated += Client_AuthTokenUpdated;
+
             if (string.IsNullOrEmpty(passArray[0]))
             {
                 return false;
@@ -120,24 +149,41 @@ namespace RootBee
             {
                 try
                 {
-                    EcobeeTokenRefresh token = new AppAuthorization().GetTokenRefreshAsync(passArray[1]).GetAwaiter().GetResult();
-                    if (string.IsNullOrEmpty(token.access_token))
+                    var request = new ThermostatSummaryRequest
                     {
-                        return false;
+                        Selection = new EcobeeLibUWP.Protocol.Objects.Selection
+                        {
+                            SelectionType = "registered"
+                        }
+                    };
+
+                    var response = Task.Run(() => client.Get<ThermostatSummaryRequest, ThermostatSummaryResponse>(request)).Result;
+                    //AuthToken token = Task<AuthToken>.Run(() => Client.GetAccessToken(AppKey, passArray[1])).Result;
+                    //AuthToken token = Client.GetAccessToken(AppKey, passArray[1]).Result;
+                    //EcobeeTokenRefresh token = new AppAuthorization().GetTokenRefreshAsync(passArray[1]).GetAwaiter().GetResult();
+                    if (response.Status.Code == 0)
+                    {
+                        //CredentialStorage.DeleteCredentialFromLocker(assemblyName, passArray[0], passArray[1]);
+                        //CredentialStorage.CreateCredentialInLocker(assemblyName, token.AccessToken, token.RefreshToken);
+                        return true;
                     }
                     else
                     {
-                        credentialStorage.DeleteCredentialFromLocker(assemblyName, passArray[0], passArray[1]);
-                        credentialStorage.CreateCredentialInLocker(assemblyName, token.access_token, token.refresh_token);
-                        return true;
+                        return false;
                     }
                 }
-                catch (ApiException)
+                catch (Exception ex)
                 {
                     return false;
                 }
                 
             }
+        }
+
+        private void Client_AuthTokenUpdated(object sender, AuthToken e)
+        {
+            CredentialStorage.UpdateCredentialInLocker(assemblyName, e.AccessToken, e.RefreshToken);
+            TokenExpiry = DateTime.Now.AddSeconds(e.ExpiresIn);
         }
 
         private void OnNavigated(object sender, NavigationEventArgs e)

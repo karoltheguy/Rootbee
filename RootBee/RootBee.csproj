@@ -111,6 +111,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <PRIResource Include="Resources.resw" />
     <None Include="RootBee_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -137,6 +138,12 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\EcobeeLib-for-UWP\EcobeeLibUWP\EcobeeLibUWP.csproj">
+      <Project>{6d323d91-df2c-42c3-a856-abeab11da106}</Project>
+      <Name>EcobeeLibUWP</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

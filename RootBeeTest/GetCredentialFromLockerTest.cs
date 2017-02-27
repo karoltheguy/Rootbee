@@ -11,15 +11,13 @@ namespace RootBeeTest
         string username = "testUsername";
         string password = "testPassword";
 
-        CredentialStorage credentialStorage = new CredentialStorage();
-
         [Fact]
         //[TestCategory("Credential")]
         public void TestCredentialFromLockerMethodsTest()
         {
-            credentialStorage.CreateCredentialInLocker(CredentialName, username, password);
+            CredentialStorage.CreateCredentialInLocker(CredentialName, username, password);
             Assert.True(CanGetCredential(), "Could not get credential after being created.");
-            credentialStorage.DeleteCredentialFromLocker(CredentialName, username, password);
+            CredentialStorage.DeleteCredentialFromLocker(CredentialName, username, password);
             Assert.False(CanGetCredential(), "Credential still exist after being deleted.");
         }
 
@@ -27,7 +25,7 @@ namespace RootBeeTest
         {
             try
             {
-                string[] passResultArray = credentialStorage.GetCredentialFromLocker(CredentialName);
+                string[] passResultArray = CredentialStorage.GetCredentialFromLocker(CredentialName);
 
                 Assert.True(passResultArray[0].Equals(username), string.Format("Username in storage is {0} and does not equal to pre-populated {1}", passResultArray[0], username));
 

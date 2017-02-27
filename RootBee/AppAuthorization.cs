@@ -43,7 +43,7 @@ namespace RootBee
         public async Task<string> PostAPIFromSite(string uri, string code, string json)
         {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", code);
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
+            //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
 
             HttpContent body = new StringContent(json);
             body.Headers.ContentType = new MediaTypeHeaderValue("application/json");

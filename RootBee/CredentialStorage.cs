@@ -9,7 +9,7 @@ namespace RootBee
 {
     public class CredentialStorage
     {
-        public string[] GetCredentialFromLocker(string resourceName)
+        public static string[] GetCredentialFromLocker(string resourceName)
         {
             PasswordCredential credential = null;
 
@@ -38,16 +38,22 @@ namespace RootBee
             
         }
 
-        public void DeleteCredentialFromLocker(string resourceName, string username, string password)
+        public static void DeleteCredentialFromLocker(string resourceName, string username, string password)
         {
             var vault = new PasswordVault();
             vault.Remove(new PasswordCredential(resourceName, username, password));
         }
 
-        public void CreateCredentialInLocker(string resourceName, string username, string password)
+        public static void CreateCredentialInLocker(string resourceName, string username, string password)
         {
             var vault = new PasswordVault();
             vault.Add(new PasswordCredential(resourceName, username, password));
+        }
+
+        public static void UpdateCredentialInLocker(string resourceName, string username, string password)
+        {
+            DeleteCredentialFromLocker(resourceName, username, password);
+            CreateCredentialInLocker(resourceName, username, password);
         }
     }
 }
