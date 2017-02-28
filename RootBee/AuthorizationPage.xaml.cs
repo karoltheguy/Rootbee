@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Navigation;
 using EcobeeLibUWP;
 using EcobeeLibUWP.Messages;
 using Windows.ApplicationModel.Resources;
+using EcobeeLibUWP.Exceptions;
 
 namespace RootBee
 {
@@ -63,7 +64,7 @@ namespace RootBee
             }
             catch (ApiException ex)
             {
-                ErrorTextBox.Text = ex.ErrorMessage.error_description;
+                ErrorTextBox.Text = ex.Error.ErrorDescription;
             }
             
             
@@ -82,9 +83,9 @@ namespace RootBee
             }
             catch (ApiException ex)
             {
-                ErrorTextBox.Text = ex.ErrorMessage.error_description;
+                ErrorTextBox.Text = ex.Error.ErrorDescription;
 
-                if (ex.ErrorMessage.error.Contains("authorization_pending"))
+                if (ex.Error.Error.Contains("authorization_pending"))
                     authTimer.Start();
             }
         }

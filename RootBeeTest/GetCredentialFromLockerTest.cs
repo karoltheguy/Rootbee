@@ -30,7 +30,7 @@ namespace RootBeeTest
                 Assert.True(passResultArray[0].Equals(username), string.Format("Username in storage is {0} and does not equal to pre-populated {1}", passResultArray[0], username));
 
                 Assert.True(passResultArray[1].Equals(password), string.Format("Password in storage is {0} and does not equal to pre-populated {1}", passResultArray[1], password));
-                
+
             }
             catch (System.Exception)
             {
@@ -40,5 +40,11 @@ namespace RootBeeTest
             return true;
         }
 
+        //[Fact]
+        //public void DeleteAllCredentials()
+        //{
+        //    string[] cred = CredentialStorage.GetCredentialFromLocker("RootBee");
+        //    CredentialStorage.DeleteCredentialFromLocker("RootBee", cred[0], cred[1]);
+        //}
     }
 }

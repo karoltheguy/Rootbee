@@ -52,7 +52,8 @@ namespace RootBee
 
         public static void UpdateCredentialInLocker(string resourceName, string username, string password)
         {
-            DeleteCredentialFromLocker(resourceName, username, password);
+            string[] oldCred = GetCredentialFromLocker(resourceName);
+            DeleteCredentialFromLocker(resourceName, oldCred[0], oldCred[1]);
             CreateCredentialInLocker(resourceName, username, password);
         }
     }
