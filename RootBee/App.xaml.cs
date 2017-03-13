@@ -29,7 +29,7 @@ namespace RootBee
     /// </summary>
     sealed partial class App : Application
     {
-        Client client;
+        public Client client;
         string assemblyName = typeof(App).GetTypeInfo().Assembly.FullName;
 
         DateTime TokenExpiry
@@ -38,7 +38,7 @@ namespace RootBee
             {
                 try
                 {
-                    return (DateTime)Windows.Storage.ApplicationData.Current.LocalSettings.Values["TokenExpiry"];
+                    return new DateTime((long)Windows.Storage.ApplicationData.Current.LocalSettings.Values["TokenExpiry"]);
                 }
                 catch (Exception)
                 {
@@ -46,8 +46,12 @@ namespace RootBee
                 }
 
             }
-
-            set => Windows.Storage.ApplicationData.Current.LocalSettings.Values["TokenExpiry"] = value;
+            set
+            {
+                Windows.Globalization.DateTimeFormatting.DateTimeFormatter formatter = new Windows.Globalization.DateTimeFormatting.DateTimeFormatter("longtime");
+                Windows.Storage.ApplicationData.Current.LocalSettings.Values["TokenExpiry"] = value.Ticks;
+                
+            }
         }
 
 
@@ -157,7 +161,7 @@ namespace RootBee
                         }
                     };
 
-                    var response = Task.Run(() => client.Get<ThermostatSummaryRequest, ThermostatSummaryResponse>(request)).Result;
+                    var response = Task.Run(() => client.GetAsync<ThermostatSummaryRequest, ThermostatSummaryResponse>(request)).Result;
                     //AuthToken token = Task<AuthToken>.Run(() => Client.GetAccessToken(AppKey, passArray[1])).Result;
                     //AuthToken token = Client.GetAccessToken(AppKey, passArray[1]).Result;
                     //EcobeeTokenRefresh token = new AppAuthorization().GetTokenRefreshAsync(passArray[1]).GetAwaiter().GetResult();

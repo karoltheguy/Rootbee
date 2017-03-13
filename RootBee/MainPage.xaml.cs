@@ -12,8 +12,9 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
+using EcobeeLibUWP;
+using EcobeeLibUWP.Protocol.Thermostat;
+using System.Threading.Tasks;
 
 namespace RootBee
 {
@@ -22,9 +23,29 @@ namespace RootBee
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        Client client;
         public MainPage()
         {
             this.InitializeComponent();
+            client = ((App)App.Current).client;
+            GetCurrentTemp();
+        }
+
+        private async Task GetCurrentTemp()
+        {
+            var request = new ThermostatRequest
+            {
+                Selection = new EcobeeLibUWP.Protocol.Objects.Selection
+                {
+                    SelectionType = "registered",
+                    IncludeRuntime = true
+                }
+            };
+
+            var response = await client.GetAsync<ThermostatRequest, ThermostatResponse>(request);
+
+            int celciusTemp = (response.ThermostatList[0].Runtime.ActualTemperature - 320) * 5 / 90;
+            CurrentTempTextBlock.Text = celciusTemp.ToString();
         }
     }
 }

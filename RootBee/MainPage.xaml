@@ -7,7 +7,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Image Source="Assets/rootbee white.png" />
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" RenderTransformOrigin="0.704,0.489">
+        <Image Source="Assets/rootbee white.png" Visibility="Collapsed"/>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+            <TextBlock x:Name="CurrentTempTextBlock" VerticalAlignment="Center" FontSize="100" Margin="50"/>
+            <Slider x:Name="TempSlider" LargeChange="1" Minimum="10" Maximum="32" Orientation="Vertical" Value="23" Height="400" Style="{StaticResource SliderStyle1}" />
+        </StackPanel>
+        
+
     </Grid>
 </Page>
